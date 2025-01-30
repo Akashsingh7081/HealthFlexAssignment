@@ -1,59 +1,55 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Share } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Button, Alert } from 'react-native';
 import { useTimerContext } from '../contexts/TimerContext';
 import { useTheme } from '../contexts/ThemeContext';
-import Button from '../components/ui/Button';
 
 const HistoryScreen = () => {
-  const { state } = useTimerContext();
+  const { state, exportData } = useTimerContext();  
   const { colors } = useTheme();
 
-  const exportHistory = async () => {
+  const exportHistory = () => {
     try {
-      const historyJson = JSON.stringify(state.history, null, 2);
-      await Share.share({
-        message: historyJson,
-        title: 'Timer History Export',
-      });
+      exportData();  
     } catch (error) {
       console.error('Error exporting history:', error);
+      Alert.alert('Error', 'Failed to export timer data.');
     }
   };
 
-  const renderHistoryItem = ({ item }) => (
-    <View style={[styles.historyItem, { backgroundColor: colors.card }]}>
-      <Text style={[styles.historyTitle, { color: colors.text }]}>
-        {item.name}
-      </Text>
-      <Text style={[styles.historyDetail, { color: colors.textSecondary }]}>
-        Category: {item.category}
-      </Text>
-      <Text style={[styles.historyDetail, { color: colors.textSecondary }]}>
-        Completed: {new Date(item.completedAt).toLocaleString()}
-      </Text>
-      <Text style={[styles.historyDetail, { color: colors.textSecondary }]}>
-        Duration: {item.duration} seconds
-      </Text>
-    </View>
-  );
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Button 
-        title="Export History" 
-        onPress={exportHistory}
-        style={styles.exportButton}
+      <Text style={[styles.title, { color: colors.text }]}>Timer History</Text>
+
+ 
+      <Button
+        title="Export History"
+        onPress={exportHistory} 
+        color={colors.primary}
       />
-      <FlatList
-        data={state.history}
-        renderItem={renderHistoryItem}
-        keyExtractor={item => item.completedAt}
-        ListEmptyComponent={
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-            No completed timers yet
-          </Text>
-        }
-      />
+
+      {state.history.length > 0 ? (
+        <FlatList
+          data={state.history}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={[styles.historyItem, { borderColor: colors.border }]}>
+              <Text style={[styles.timerName, { color: colors.text }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.timestamp, { color: colors.text }]}>
+                Completed At: {new Date(item.completedAt).toLocaleString()}
+              </Text>
+              <Text style={[styles.duration, { color: colors.textSecondary }]}>
+                Duration: {item.duration} seconds
+              </Text>
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={[styles.emptyText, { color: colors.text }]}>
+          No timers completed yet.
+        </Text>
+      )}
     </View>
   );
 };
@@ -63,27 +59,34 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  exportButton: {
-    marginBottom: 16,
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   historyItem: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderRadius: 6,
   },
-  historyTitle: {
+  timerName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
   },
-  historyDetail: {
+  timestamp: {
     fontSize: 14,
-    marginBottom: 4,
+    marginTop: 5,
+  },
+  duration: {
+    fontSize: 14,
+    marginTop: 5,
+    fontStyle: 'italic',
   },
   emptyText: {
-    textAlign: 'center',
     fontSize: 16,
-    marginTop: 32,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

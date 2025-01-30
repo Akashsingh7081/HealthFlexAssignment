@@ -20,25 +20,3 @@ export const ThemeProvider = ({ children }) => {
 };
 
 export const useTheme = () => useContext(ThemeContext);
-
-// contexts/ThemeContext.js
-// import React, { createContext, useContext } from 'react';
-
-// const ThemeContext = createContext();
-
-// export const useTheme = () => useContext(ThemeContext);
-
-// export const ThemeProvider = ({ children }) => {
-//   const theme = {
-//     colors: {
-//       background: '#f5f5f5',  // Provide your background color here
-//       text: '#333',  // And other colors
-//     },
-//   };
-
-//   return (
-//     <ThemeContext.Provider value={theme}>
-//       {children}
-//     </ThemeContext.Provider>
-//   );
-// };
