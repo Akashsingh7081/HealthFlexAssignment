@@ -1,15 +1,15 @@
 export const colors = {
     light: {
       // Main colors
-      primary: '#007AFF',
+      primary: '#2E8B57',
       secondary: '#5856D6',
       success: '#34C759',
       warning: '#FF9500',
       error: '#FF3B30',
       
       // Background colors
-      background: '#F2F2F7',
-      card: '#FFFFFF',
+      background: '#A8C3BC',
+      card: '#ede8d0',
       modal: '#FFFFFF',
       
       // Text colors

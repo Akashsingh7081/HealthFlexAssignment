@@ -10,11 +10,13 @@ import {
 import { useTimerContext } from "../contexts/TimerContext";
 import TimerCard from "../components/timer/TimerCard";
 import TimerForm from "../components/timer/TimerForm";
+import CustomModal from "../components/ui/modal"; 
 import { useTheme } from "../contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
-  const { state, updateTimer, addToHistory, addTimer, deleteTimer } = useTimerContext();
+  const { state, updateTimer, addToHistory, addTimer, deleteTimer } =
+    useTimerContext();
   const { colors } = useTheme();
   const [showForm, setShowForm] = useState(false);
   const [expandedSections, setExpandedSections] = useState({});
@@ -63,14 +65,18 @@ const HomeScreen = ({ navigation }) => {
   const resetAllTimers = (category) => {
     state.timers.forEach((timer) => {
       if (timer.category === category) {
-        updateTimer({ ...timer, status: "idle", remainingTime: timer.duration });
+        updateTimer({
+          ...timer,
+          status: "idle",
+          remainingTime: timer.duration,
+        });
       }
     });
   };
 
   // Function to delete a timer by its ID
   const deleteTimerById = (id) => {
-    deleteTimer(id); // Call deleteTimer from context
+    deleteTimer(id);
   };
 
   const groupedTimers = state.timers.reduce((sections, timer) => {
@@ -87,10 +93,19 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Button
-        title="View History"
-        onPress={() => navigation.navigate("History")}
-      />
+      {/* Header with View History button and Plus Icon */}
+      <View style={styles.headerActions}>
+        <Button
+          title="View History"
+          onPress={() => navigation.navigate("History")}
+        />
+        <TouchableOpacity
+          style={[styles.addButton, { backgroundColor: colors.primary }]}
+          onPress={() => setShowForm(true)}
+        >
+          <Ionicons name="add" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
 
       <SectionList
         sections={sectionData}
@@ -102,7 +117,7 @@ const HomeScreen = ({ navigation }) => {
               timer={item}
               onUpdate={updateTimer}
               onComplete={handleComplete}
-              onDelete={deleteTimerById} 
+              onDelete={deleteTimerById}
             />
           ) : null
         }
@@ -112,9 +127,7 @@ const HomeScreen = ({ navigation }) => {
               style={styles.sectionHeader}
               onPress={() => toggleSection(title)}
             >
-              <Text
-                style={[styles.sectionHeaderText, { color: colors.text }]}
-              >
+              <Text style={[styles.sectionHeaderText, { color: colors.text }]}>
                 {title}
               </Text>
               <Ionicons
@@ -127,7 +140,10 @@ const HomeScreen = ({ navigation }) => {
             {expandedSections[title] && (
               <View style={styles.bulkActions}>
                 <TouchableOpacity
-                  style={[styles.bulkButton, { backgroundColor: colors.primary }]}
+                  style={[
+                    styles.bulkButton,
+                    { backgroundColor: colors.primary },
+                  ]}
                   onPress={() => startAllTimers(title)}
                 >
                   <Ionicons name="play" size={20} color="white" />
@@ -156,14 +172,10 @@ const HomeScreen = ({ navigation }) => {
         stickySectionHeadersEnabled={true}
       />
 
-      {showForm && <TimerForm onClose={() => setShowForm(false)} />}
-
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: colors.primary }]}
-        onPress={() => setShowForm(true)}
-      >
-        <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
+      {/* Custom Modal for Adding New Timer */}
+      <CustomModal visible={showForm} onClose={() => setShowForm(false)} title="Add Timer">
+        <TimerForm onClose={() => setShowForm(false)} />
+      </CustomModal>
     </View>
   );
 };
@@ -173,12 +185,27 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  headerActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+  },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,
     backgroundColor: "#f0f0f0",
-    borderTopWidth: 1,
+    borderTopWidth: 2,
     borderTopColor: "#e5e5e5",
   },
   sectionHeaderText: {
@@ -201,17 +228,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
     marginLeft: 5,
-  },
-  fab: {
-    position: "absolute",
-    bottom: 20,
-    right: 150,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 8,
   },
 });
 
